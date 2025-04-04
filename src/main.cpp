@@ -4,7 +4,7 @@
 #include <scan_code.h>
 #include <time.h>
 
-const long double SCALE = 0.005;
+const float SCALE = 0.005;
 const int MAX_RADIUS    = 20;
       int x_cntr        = 500;
       int y_cntr        = 300;
@@ -28,7 +28,7 @@ enum color
 };
 
 void HandleArgs(char** argv, bool* show_flag, int* eval_flag);
-long double radius(long double x, long double y);
+float radius(float x, float y);
 COLORREF SetPixCol(color pix_col);
 void CountAndRender(bool show, int evaluate, scan_code_t nxt_instr);
 
@@ -51,16 +51,22 @@ int main(int argc, char* argv[])
     //if (SHOW)
 
     txCreateWindow (WIDTH, HEIGHT);
+
+    int pnt_x = 0, pnt_y = 0;
     while (true)
     {
+        SetCursorPos(pnt_x, pnt_y);
         scan_code_t nxt_instr = GetKey();
         if (nxt_instr == ESC_C) break;
 
+        clock_t time1 = clock();
         CountAndRender(SHOW, EVALUATE, nxt_instr);
+        clock_t time2 = clock();
+
+        double time = (double)(time2 - time1) / CLOCKS_PER_SEC;
+        printf("time execution = %g\n", time);
+        printf("fps = %g\n", (EVALUATE / time));
     }
-
-    printf("sizeof color = %d\n", sizeof(color));
-
 
     return 0;
 }
@@ -93,20 +99,20 @@ void CountAndRender(bool show, int evaluate, scan_code_t nxt_instr)
             for (int i = 0; i < evaluate; i++)
             {
                 int N = 0;
-                long double x1 = SCALE * (long double)(x_i - x_cntr);
-                long double y1 = SCALE * (long double)(y_i - y_cntr);
+                float x1 = SCALE * (float)(x_i - x_cntr);
+                float y1 = SCALE * (float)(y_i - y_cntr);
 
 
-                long double x = 0;
-                long double y = 0;
+                float x = 0;
+                float y = 0;
 
-                long double RAD = radius(x, y);
+                float RAD = radius(x, y);
 
                 while(RAD <= MAX_RADIUS && N <= MAX_N)
                 {
-                    long double x_2 = x * x;
-                    long double y_2 = y * y;
-                    long double xy  = x * y;
+                    float x_2 = x * x;
+                    float y_2 = y * y;
+                    float xy  = x * y;
 
                     x = x_2 - y_2 + x1;
                     y = xy  +  xy + y1;
@@ -173,7 +179,7 @@ void HandleArgs(char** argv, bool* show_flag, int* eval_flag)
     return ;
 }
 
-long double radius(long double x, long double y)
+float radius(float x, float y)
 {
     return x * x + y * y;
 }
